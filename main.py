@@ -1,72 +1,46 @@
-#!/bin/env python3
+#!/usr/bin/env python3
 
 import requests
 import json
-import re
-import time
 import os
-from bs4 import BeautifulSoup
 
-def getSourceCodeFromURL(url):
-  #Sorry for AtCoder Server
-  time.sleep(1)
-
-  #get source code from url
-  soup = BeautifulSoup(requests.get(url).content, "html.parser").find("pre")
-  sourcecode = str(soup)
-
-  #make it clean
-  #remove <pre .. >
-  for i in range(len(sourcecode)):
-    if sourcecode[i] == '>':
-      sourcecode = sourcecode[i+1:]
-      break
-
-  #remove tail </pre>
-  sourcecode = sourcecode[:-6]
-
-  #replace some special chars
-  # < &lt;
-  sourcecode = sourcecode.replace("&lt;","<")
-
-  # > &gt;
-  sourcecode = sourcecode.replace("&gt;",">")
-
-  # & &amp;
-  sourcecode = sourcecode.replace("&amp;","&")
-
-  #replace CRLF to LF
-  sourcecode = sourcecode.replace("\r","")
-
-  return sourcecode
+from util import getSourceCodeFromURL
 
 if __name__ == "__main__":
+  #ask name
   print("What is your AtCoder's name?: ",end="")
-  username = input();
-  url = "https://kenkoooo.com/atcoder/atcoder-api/results?user="+username #thanks kenkoooo
+  username = str(input())
 
+  #thanks kenkoooo
+  jsons = requests.get("https://kenkoooo.com/atcoder/atcoder-api/results?user="+username).json()
+  #put codes sum
+  print("found " + str(len(jsons)) + "codes")
+
+  #ask collect target
   print("Collect file include WA and some errors?[y/n]: ",end="")
   collectall=False
   if input() == "y":
-    print("All Collect")
     collectall=True
+    print("Collect All")
   else:
-    print("Collect only AC file")
     collectall=False
-
-  jsons = requests.get(url).json()
-  print("found " + str(len(jsons)) + "codes")
+    print("Collect only AC file")
 
   for dates in jsons:
+    #generate code url
     codeurl = "https://atcoder.jp/contests/"+ str(dates["contest_id"]) + "/submissions/" + str(dates["id"])
-    print(codeurl+"...  "+dates["result"])
+
+    #put url
+    print(codeurl+": "+dates["result"])
+
     if not collectall and dates["result"] != "AC":
       continue
 
+    #make folder
     pathtofolder = "result/" + str(dates["contest_id"])
     os.makedirs(pathtofolder,exist_ok=True)
 
+    #touch file
     pathtocode = pathtofolder + "/" + str(dates["problem_id"][-1]) + ".cpp"
     with open(pathtocode,"w") as codefile:
       print(getSourceCodeFromURL(codeurl),file=codefile)
-
