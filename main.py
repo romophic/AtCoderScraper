@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 
 def getSourceCodeFromURL(url):
   #Sorry for AtCoder Server
-  time.sleep(0)
+  time.sleep(1)
 
   #get source code from url
   soup = BeautifulSoup(requests.get(url).content, "html.parser").find("pre")
@@ -47,12 +47,7 @@ if __name__ == "__main__":
 
   jsons = requests.get(url).json()
 
-  num=0
   for dates in jsons:
-    num+=1
-    if 26 < num:
-      exit()
-
     codeurl = "https://atcoder.jp/contests/"+ str(dates["contest_id"]) + "/submissions/" + str(dates["id"])
     print(codeurl+"...")
     print(dates)
