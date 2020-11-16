@@ -45,12 +45,23 @@ if __name__ == "__main__":
   username = input();
   url = "https://kenkoooo.com/atcoder/atcoder-api/results?user="+username #thanks kenkoooo
 
+  print("Collect file include WA and some errors?[y/n]: ",end="")
+  collectall=False
+  if input() == "y":
+    print("All Collect")
+    collectall=True
+  else:
+    print("Collect only AC file")
+    collectall=False
+
   jsons = requests.get(url).json()
+  print("found " + str(len(jsons)) + "codes")
 
   for dates in jsons:
     codeurl = "https://atcoder.jp/contests/"+ str(dates["contest_id"]) + "/submissions/" + str(dates["id"])
-    print(codeurl+"...")
-    print(dates)
+    print(codeurl+"...  "+dates["result"])
+    if not collectall and dates["result"] != "AC":
+      continue
 
     pathtofolder = "result/" + str(dates["contest_id"])
     os.makedirs(pathtofolder,exist_ok=True)
