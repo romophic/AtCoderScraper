@@ -3,28 +3,53 @@
 import requests
 import json
 import os
+import time
+import subprocess
 
-from util import getSourceCodeFromURL
+from bs4 import BeautifulSoup
+
+def getSourceCodeFromURL(url):
+  #get source code from url
+  soup = BeautifulSoup(requests.get(url).content, "html.parser").find("pre")
+  sourcecode = str(soup)
+
+  #make it clean
+  #remove <pre .. >
+  for i in range(len(sourcecode)):
+    if sourcecode[i] == '>':
+      sourcecode = sourcecode[i+1:]
+      break
+
+  #remove tail </pre>
+  sourcecode = sourcecode[:-6]
+
+  #replace some special chars
+  # < &lt;
+  sourcecode = sourcecode.replace("&lt;","<")
+
+  # > &gt;
+  sourcecode = sourcecode.replace("&gt;",">")
+
+  # & &amp;
+  sourcecode = sourcecode.replace("&amp;","&")
+
+  #replace CRLF to LF
+  sourcecode = sourcecode.replace("\r","")
+
+  return sourcecode
+
 
 if __name__ == "__main__":
+  parentfordername = "result"
+
   #ask name
   print("What is your AtCoder's name?: ",end="")
   username = str(input())
 
   #thanks kenkoooo
   jsons = requests.get("https://kenkoooo.com/atcoder/atcoder-api/results?user="+username).json()
-  #put codes sum
+  #put how many codes
   print("found " + str(len(jsons)) + "codes")
-
-  #ask collect target
-  print("Collect file include WA and some errors?[y/n]: ",end="")
-  collectall=False
-  if input() == "y":
-    collectall=True
-    print("Collect All")
-  else:
-    collectall=False
-    print("Collect only AC file")
 
   for dates in jsons:
     #generate code url
@@ -33,14 +58,22 @@ if __name__ == "__main__":
     #put url
     print(codeurl+": "+dates["result"])
 
-    if not collectall and dates["result"] != "AC":
+    if dates["result"] != "AC":
       continue
 
     #make folder
-    pathtofolder = "result/" + str(dates["contest_id"])
+    pathtofolder = parentfordername+"/" + str(dates["contest_id"])
     os.makedirs(pathtofolder,exist_ok=True)
 
     #touch file
     pathtocode = pathtofolder + "/" + str(dates["problem_id"][-1]) + ".cpp"
     with open(pathtocode,"w") as codefile:
       print(getSourceCodeFromURL(codeurl),file=codefile)
+
+    #commit to git
+    git_add_code="git add " + pathtocode
+    git_commit_code="git commit -m \""+codeurl+": "+str(dates["execution_time"])+"\" --date=\"" + str(subprocess.check_output(["date","-r",str(dates["epoch_second"])]))+"\""
+    print(git_add_code)
+    print(git_commit_code)
+    os.system(git_add_code)
+    os.system(git_commit_code)
