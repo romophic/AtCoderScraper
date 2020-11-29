@@ -72,7 +72,7 @@ if __name__ == "__main__":
 
     #commit to git
     git_add_code="git add " + pathtocode
-    git_commit_code="git commit -m \""+codeurl+": "+str(dates["execution_time"])+"\" --date=\"" + str(subprocess.check_output(["date","-r",str(dates["epoch_second"])]))+"\""
+    git_commit_code="git commit -m \""+codeurl+"\" --date=\"" + str(subprocess.check_output(["date","-r",str(dates["epoch_second"])]))+"\""
     print(git_add_code)
     print(git_commit_code)
     os.system(git_add_code)
