@@ -8,7 +8,7 @@ import subprocess
 
 from bs4 import BeautifulSoup
 
-parentfordername = "result"
+parentfordername = "AtCoder"
 cachefilename = "data.json"
 
 def getSourceCodeFromURL(url):
