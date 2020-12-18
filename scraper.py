@@ -142,9 +142,12 @@ def ifFileNotFound():
   return
 
 if __name__ == "__main__":
+  print("path:" + str(__file__))
   if(os.path.isfile(cachefilename)):
     print("Found cache file")
     ifFileFound()
   else:
     print("Not found cache file")
     ifFileNotFound()
+
+  subprocess.run(["git","push"],cwd=str(os.path.dirname(__file__)))
