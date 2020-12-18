@@ -9,8 +9,8 @@ import platform
 
 from bs4 import BeautifulSoup
 
-parentfordername = "AtCoder"
-cachefilename = "data.json"
+parentfordername = os.path.dirname(__file__)+"/AtCoder"
+cachefilename = os.path.dirname(__file__) + "/data.json"
 
 def getSourceCodeFromURL(url):
   #get source code from url
@@ -75,7 +75,7 @@ def ifFileFound():
         if olddates["id"] == dates["id"]:
           tr=True
           print("Same")
-      
+
       if tr:
         continue
 
