@@ -5,6 +5,7 @@ import json
 import os
 import time
 import subprocess
+import platform
 
 from bs4 import BeautifulSoup
 
@@ -40,6 +41,12 @@ def getSourceCodeFromURL(url):
   sourcecode = sourcecode.replace("\r","")
 
   return sourcecode
+
+def getTimeFromUnixTime(time):
+  if(platform.system() == "Linux"):
+    return str(subprocess.check_output(["date","--date=@" + str(time)]))
+  else:
+    return str(subprocess.check_output(["date","-r",str(time)]))
 
 def ifFileFound():
   #get old data
@@ -83,7 +90,7 @@ def ifFileFound():
 
     #commit to git
     git_add_code="git add " + pathtocode
-    git_commit_code="git commit -m \""+codeurl+"\" --date=\"" + str(subprocess.check_output(["date","-r",str(dates["epoch_second"])]))+"\""
+    git_commit_code="git commit -m \""+codeurl+"\" --date=\""+getTimeFromUnixTime(dates["epoch_second"])+"\""
     os.system(git_add_code)
     os.system(git_commit_code)
 
@@ -123,7 +130,7 @@ def ifFileNotFound():
 
     #commit to git
     git_add_code="git add " + pathtocode
-    git_commit_code="git commit -m \""+codeurl+"\" --date=\"" + str(subprocess.check_output(["date","-r",str(dates["epoch_second"])]))+"\""
+    git_commit_code="git commit -m \""+codeurl+"\" --date=\""+getTimeFromUnixTime(dates["epoch_second"])+"\""
     os.system(git_add_code)
     os.system(git_commit_code)
 
@@ -131,6 +138,8 @@ def ifFileNotFound():
   print("write json date")
   with open(cachefilename,"w") as oldjsonfile:
     json.dump(jsons,oldjsonfile)
+
+  return
 
 if __name__ == "__main__":
   if(os.path.isfile(cachefilename)):
