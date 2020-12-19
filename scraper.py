@@ -9,7 +9,7 @@ import platform
 
 from bs4 import BeautifulSoup
 
-parentfordername = os.path.dirname(__file__)+"/AtCoder"
+parentfordername = os.path.dirname(__file__) + "/AtCoder"
 cachefilename = os.path.dirname(__file__) + "/data.json"
 
 def getSourceCodeFromURL(url):
@@ -142,7 +142,6 @@ def ifFileNotFound():
   return
 
 if __name__ == "__main__":
-  print("path:" + str(__file__))
   if(os.path.isfile(cachefilename)):
     print("Found cache file")
     ifFileFound()
@@ -150,4 +149,4 @@ if __name__ == "__main__":
     print("Not found cache file")
     ifFileNotFound()
 
-  subprocess.run(["git","push"],cwd=str(os.path.dirname(__file__)))
+  subprocess.run(["git","push"],cwd=os.path.dirname(__file__))
