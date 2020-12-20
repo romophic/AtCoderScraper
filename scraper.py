@@ -129,10 +129,11 @@ def ifFileNotFound():
       print(getSourceCodeFromURL(codeurl),file=codefile)
 
     #commit to git
-    git_add_code="git add " + pathtocode
-    git_commit_code="git commit -m \""+codeurl+"\" --date=\""+getTimeFromUnixTime(dates["epoch_second"])+"\""
-    os.system(git_add_code)
-    os.system(git_commit_code)
+    git_add_code=["git","add",pathtocode]
+    git_commit_code=["git","commit","-m","\""+codeurl+"\"","--date=\""+getTimeFromUnixTime(dates["epoch_second"])+"\""]
+
+    subprocess.run(git_add_code,cwd=os.path.dirname(__file__))
+    subprocess.run(git_commit_code,cwd=os.path.dirname(__file__))
 
   #write json date
   print("write json date")
