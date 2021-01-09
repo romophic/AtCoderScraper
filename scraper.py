@@ -9,8 +9,13 @@ import platform
 
 from bs4 import BeautifulSoup
 
+runningpath = os.path.dirname(__file__)
 parentfordername = os.path.dirname(__file__) + "/AtCoder"
 cachefilename = os.path.dirname(__file__) + "/data.json"
+
+print("running in: " + runningpath)
+print("parentfordername: " + parentfordername)
+print("cachefilename:  " + cachefilename)
 
 def getSourceCodeFromURL(url):
   #get source code from url
@@ -47,6 +52,29 @@ def getTimeFromUnixTime(time):
     return str(subprocess.check_output(["date","--date=@" + str(time)]))
   else:
     return str(subprocess.check_output(["date","-r",str(time)]))
+  return
+
+def addAndCommit(contestid,problemid,codeurl,epochsecond):
+  #make folder
+  pathtofolder = parentfordername+"/" + str(contestid)
+  os.makedirs(pathtofolder,exist_ok=True)
+
+  #touch file
+  pathtocode = pathtofolder + "/" + str(problemid) + ".cpp"
+  with open(pathtocode,"w") as codefile:
+    print(getSourceCodeFromURL(codeurl),file=codefile)
+
+  #commit to git
+  git_add_code="git add " + pathtocode
+  git_commit_code="git commit -m \""+codeurl+"\" --date=\""+getTimeFromUnixTime(epochsecond)+"\""
+
+  print(git_add_code)
+  print(git_commit_code)
+  print(runningpath)
+
+  subprocess.run(git_add_code,cwd=runningpath)
+  subprocess.run(git_commit_code,cwd=runningpath)
+  return
 
 def ifFileFound():
   #get old data
@@ -60,39 +88,26 @@ def ifFileFound():
   #put how many codes
   print("Found new " + str(len(jsons)-len(oldjson)) + " codes")
 
-  for dates in jsons:
+  for json in jsons:
     #generate code url
-    codeurl = "https://atcoder.jp/contests/"+ str(dates["contest_id"]) + "/submissions/" + str(dates["id"])
+    codeurl = "https://atcoder.jp/contests/"+ str(json["contest_id"]) + "/submissions/" + str(json["id"])
 
     #result
     print(codeurl+": ",end="")
-    if dates["result"] != "AC":
+    if json["result"] != "AC":
       print("WA")
       continue
     else:
       tr = False
       for olddates in oldjson:
-        if olddates["id"] == dates["id"]:
+        if olddates["id"] == json["id"]:
           tr=True
           print("Same")
 
       if tr:
         continue
 
-    #make folder
-    pathtofolder = parentfordername+"/" + str(dates["contest_id"])
-    os.makedirs(pathtofolder,exist_ok=True)
-
-    #touch file
-    pathtocode = pathtofolder + "/" + str(dates["problem_id"][-1]) + ".cpp"
-    with open(pathtocode,"w") as codefile:
-      print(getSourceCodeFromURL(codeurl),file=codefile)
-
-    #commit to git
-    git_add_code="git add " + pathtocode
-    git_commit_code="git commit -m \""+codeurl+"\" --date=\""+getTimeFromUnixTime(dates["epoch_second"])+"\""
-    os.system(git_add_code)
-    os.system(git_commit_code)
+    addAndCommit(json["contest_id"],json["problem_id"][-1],codeurl,json["epoch_second"])
 
   #write json date
   print("write json date")
@@ -109,31 +124,22 @@ def ifFileNotFound():
   #put how many codes
   print("found " + str(len(jsons)) + "codes")
 
-  for dates in jsons:
+  for json in jsons:
     #generate code url
-    codeurl = "https://atcoder.jp/contests/"+ str(dates["contest_id"]) + "/submissions/" + str(dates["id"])
+    codeurl = "https://atcoder.jp/contests/"+ str(json["contest_id"]) + "/submissions/" + str(json["id"])
 
     #put url
-    print(codeurl+": "+dates["result"])
+    print(codeurl+": "+json["result"])
 
-    if dates["result"] != "AC":
+    if json["result"] != "AC":
       continue
 
-    #make folder
-    pathtofolder = parentfordername+"/" + str(dates["contest_id"])
-    os.makedirs(pathtofolder,exist_ok=True)
+    print(json["contest_id"])
+    print(json["problem_id"])
+    print(codeurl)
+    print(json["epoch_second"])
 
-    #touch file
-    pathtocode = pathtofolder + "/" + str(dates["problem_id"][-1]) + ".cpp"
-    with open(pathtocode,"w") as codefile:
-      print(getSourceCodeFromURL(codeurl),file=codefile)
-
-    #commit to git
-    git_add_code=["git","add",pathtocode]
-    git_commit_code=["git","commit","-m","\""+codeurl+"\"","--date=\""+getTimeFromUnixTime(dates["epoch_second"])+"\""]
-
-    subprocess.run(git_add_code,cwd=os.path.dirname(__file__))
-    subprocess.run(git_commit_code,cwd=os.path.dirname(__file__))
+    addAndCommit(json["contest_id"],json["problem_id"],codeurl,json["epoch_second"])
 
   #write json date
   print("write json date")
@@ -150,4 +156,4 @@ if __name__ == "__main__":
     print("Not found cache file")
     ifFileNotFound()
 
-  subprocess.run(["git","push"],cwd=os.path.dirname(__file__))
+  subprocess.run(["git","push"],cwd=runningpath)
