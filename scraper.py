@@ -9,9 +9,9 @@ import platform
 
 from bs4 import BeautifulSoup
 
-runningpath = os.path.dirname(__file__)
-parentfordername = os.path.dirname(__file__) + "/AtCoder"
-cachefilename = os.path.dirname(__file__) + "/data.json"
+runningpath = os.path.abspath(os.path.dirname(__file__))
+parentfordername = "AtCoder"
+cachefilename =  "data.json"
 
 print("running in: " + runningpath)
 print("parentfordername: " + parentfordername)
@@ -55,30 +55,23 @@ def getTimeFromUnixTime(time):
   return
 
 def addAndCommit(contestid,problemid,codeurl,epochsecond):
-  #make folder
-  pathtofolder = parentfordername+"/" + str(contestid)
-  os.makedirs(pathtofolder,exist_ok=True)
+  pathtocontest = runningpath + "/" + parentfordername + "/" + str(contestid)
+  contestfilename = str(problemid) + ".cpp"
 
-  #touch file
-  pathtocode = pathtofolder + "/" + str(problemid) + ".cpp"
-  with open(pathtocode,"w") as codefile:
+  #make folder
+  os.makedirs(pathtocontest,exist_ok=True)
+
+  #make file
+  with open(pathtocontest + "/" + contestfilename,"w") as codefile:
     print(getSourceCodeFromURL(codeurl),file=codefile)
 
-  #commit to git
-  git_add_code="git add " + pathtocode
-  git_commit_code="git commit -m \""+codeurl+"\" --date=\""+getTimeFromUnixTime(epochsecond)+"\""
-
-  print(git_add_code)
-  print(git_commit_code)
-  print(runningpath)
-
-  subprocess.run(git_add_code,cwd=runningpath)
-  subprocess.run(git_commit_code,cwd=runningpath)
+  subprocess.run(["git","add",parentfordername+"/"+str(contestid)+"/"+contestfilename],cwd=runningpath)
+  subprocess.run(["git","commit","-m",codeurl,"--date="+getTimeFromUnixTime(epochsecond)],cwd=runningpath)
   return
 
 def ifFileFound():
   #get old data
-  oldjson = json.load(open(cachefilename))
+  oldjson = json.load(open(runningpath+"/"+cachefilename,'r'))
 
   #set name
   username = oldjson[0]["user_id"]
@@ -111,7 +104,7 @@ def ifFileFound():
 
   #write json date
   print("write json date")
-  with open(cachefilename,"w") as oldjsonfile:
+  with open(runningpath+"/"+cachefilename,"w") as oldjsonfile:
     json.dump(jsons,oldjsonfile)
 
 def ifFileNotFound():
@@ -143,13 +136,13 @@ def ifFileNotFound():
 
   #write json date
   print("write json date")
-  with open(cachefilename,"w") as oldjsonfile:
+  with open(runningpath+"/"+cachefilename,"w") as oldjsonfile:
     json.dump(jsons,oldjsonfile)
 
   return
 
 if __name__ == "__main__":
-  if(os.path.isfile(cachefilename)):
+  if(os.path.isfile(runningpath+"/"+cachefilename)):
     print("Found cache file")
     ifFileFound()
   else:
