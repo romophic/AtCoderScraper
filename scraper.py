@@ -13,10 +13,6 @@ runningpath = os.path.abspath(os.path.dirname(__file__))
 parentfordername = "AtCoder"
 cachefilename =  "data.json"
 
-print("running in: " + runningpath)
-print("parentfordername: " + parentfordername)
-print("cachefilename:  " + cachefilename)
-
 def getSourceCodeFromURL(url):
   #get source code from url
   soup = BeautifulSoup(requests.get(url).content, "html.parser").find("pre")
@@ -81,26 +77,26 @@ def ifFileFound():
   #put how many codes
   print("Found new " + str(len(jsons)-len(oldjson)) + " codes")
 
-  for json in jsons:
+  for jsn in jsons:
     #generate code url
-    codeurl = "https://atcoder.jp/contests/"+ str(json["contest_id"]) + "/submissions/" + str(json["id"])
+    codeurl = "https://atcoder.jp/contests/"+ str(jsn["contest_id"]) + "/submissions/" + str(jsn["id"])
 
     #result
     print(codeurl+": ",end="")
-    if json["result"] != "AC":
+    if jsn["result"] != "AC":
       print("WA")
       continue
     else:
       tr = False
       for olddates in oldjson:
-        if olddates["id"] == json["id"]:
+        if olddates["id"] == jsn["id"]:
           tr=True
           print("Same")
 
       if tr:
         continue
 
-    addAndCommit(json["contest_id"],json["problem_id"][-1],codeurl,json["epoch_second"])
+    addAndCommit(jsn["contest_id"],jsn["problem_id"][-1],codeurl,jsn["epoch_second"])
 
   #write json date
   print("write json date")
@@ -117,22 +113,17 @@ def ifFileNotFound():
   #put how many codes
   print("found " + str(len(jsons)) + "codes")
 
-  for json in jsons:
+  for jsn in jsons:
     #generate code url
-    codeurl = "https://atcoder.jp/contests/"+ str(json["contest_id"]) + "/submissions/" + str(json["id"])
+    codeurl = "https://atcoder.jp/contests/"+ str(jsn["contest_id"]) + "/submissions/" + str(jsn["id"])
 
     #put url
-    print(codeurl+": "+json["result"])
+    print(codeurl+": "+jsn["result"])
 
-    if json["result"] != "AC":
+    if jsn["result"] != "AC":
       continue
 
-    print(json["contest_id"])
-    print(json["problem_id"])
-    print(codeurl)
-    print(json["epoch_second"])
-
-    addAndCommit(json["contest_id"],json["problem_id"],codeurl,json["epoch_second"])
+    addAndCommit(jsn["contest_id"],jsn["problem_id"],codeurl,jsn["epoch_second"])
 
   #write json date
   print("write json date")
