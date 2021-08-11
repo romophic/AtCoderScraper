@@ -19,7 +19,7 @@ from bs4 import BeautifulSoup
 runningpath = os.path.abspath(os.path.dirname(__file__))
 parentfordername = "AtCoder"
 cachefilename =  "data.json"
-waitsec = 0
+waitsec = 1
 languagecorrespondence = [
   # from https://atcoder.jp/contests/APG4b/rules
   # The language extracts the characters before the parentheses
