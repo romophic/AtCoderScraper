@@ -119,7 +119,6 @@ def getTimeFromUnixTime(time) -> str:
     return str(subprocess.check_output(["date","--date=@" + str(time)]))
   else:
     return str(subprocess.check_output(["date","-r",str(time)]))
-  return
 
 def judgeWhichLanguage(language) -> str:
   language = language[:language.find("(")-1]
@@ -198,10 +197,10 @@ def ifFileNotFound():
 
 if __name__ == "__main__":
   if(os.path.isfile(runningpath+"/"+cachefilename)):
-    print("Found cache file")
+    print("Cache file found")
     ifFileFound()
   else:
-    print("Not found cache file")
+    print("Cache file not found")
     ifFileNotFound()
 
   subprocess.run(["git","push"],cwd=runningpath)
