@@ -129,6 +129,7 @@ def judgeWhichLanguage(language) -> str:
   return ""
 
 def addAndCommit(contestid,problemid,codeurl,epochsecond,language):
+  time.sleep(waitsec)
   pathtocontest = runningpath + "/" + parentfordername + "/" + str(contestid)
   contestfilename = str(problemid) + judgeWhichLanguage(language);
 
@@ -150,8 +151,6 @@ def ifFileFound():
   print("Found new " + str(len(jsons)-len(oldjson)) + " codes")
 
   for jsn in jsons:
-    time.sleep(waitsec)
-
     codeurl = "https://atcoder.jp/contests/"+ str(jsn["contest_id"]) + "/submissions/" + str(jsn["id"])
 
     if jsn["result"] != "AC":
